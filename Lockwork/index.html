@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#efe6d8">
+<title>LOCKWORK — Workforce</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+<div class="page"><div class="shell">
+<section class="visual">
+  <div class="brand-row"><img class="logo" src="assets/logo.png" alt="LOCKWORK logo"><div class="brand-word">LOCKWORK<span>WORKFORCE SYSTEM</span></div></div>
+  <div class="hero"><div class="eyebrow"><i class="fa-solid fa-circle"></i> Workforce, in sync</div><h1>Work smart.<em>Stay in control.</em></h1><p>One connected workspace for attendance, people, leave, and everyday workforce operations — built to keep the whole team moving.</p></div>
+  <div class="signal-row"><span class="signal">Attendance</span><span class="signal">Leave</span><span class="signal">People</span><span class="signal">Insights</span></div>
+</section>
+<section class="panel"><div class="login-box">
+  <div class="kicker">Your workspace awaits</div><div class="title">Welcome back.</div><div class="sub">Sign in and get straight to the work that matters.</div>
+  <div class="mode"><button id="employeeMode" class="active" type="button">Employee ID</button><button id="hrMode" type="button">HR Email</button></div>
+  <form id="loginForm">
+    <div class="field"><label id="identityLabel">Employee ID</label><div class="input-wrap"><i class="fa-regular fa-id-card" id="identityIcon"></i><input class="input" id="identity" autocomplete="username" placeholder="EMP-26-01-2026-00001" required></div></div>
+    <div class="field"><label>Password</label><div class="input-wrap"><i class="fa-solid fa-lock"></i><input class="input" id="password" type="password" autocomplete="current-password" placeholder="Enter password" required><button class="toggle" id="togglePassword" type="button"><i class="fa-regular fa-eye" id="eye"></i></button></div></div>
+    <div class="error" id="error"></div>
+    <button class="submit" id="submitBtn" type="submit"><i class="fa-solid fa-arrow-right-to-bracket"></i> Continue</button>
+  </form>
+  <div class="cloud"><span class="dot"></span> Connected to Lockwork Cloud</div>
+  <div class="mini-note"><i class="fa-solid fa-bolt"></i> Your workplace, your data, your day — all in one place.</div>
+  <div class="footer">LOCKWORK · Workforce operations made simple</div>
+</div></section>
+</div></div>
+<script type="module" src="scripts/index.js">
+</script>
+</body>
+</html>

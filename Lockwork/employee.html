@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#F2F4F9" id="metaThemeColor">
+<title>LOCKWORK — Employee App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800;900&family=Fira+Code:wght@500;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lockwork">
+<link rel="stylesheet" href="css/employee.css">
+</head>
+<body>
+<div class="app-container">
+  <header class="topbar">
+    <div class="brand-greeting">
+      <span id="headerGreeting">Good Morning,</span>
+      <h1 id="headerName">Employee</h1>
+    </div>
+    <div class="top-controls">
+      <button class="theme-btn" onclick="toggleTheme()" id="themeToggleBtn"><i class="fa-solid fa-moon"></i></button>
+      <button class="theme-btn" onclick="logout()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+  </header>
+
+  <main class="content-area">
+    
+    <div id="tab-dash" class="tab-view active">
+      <div class="status-widget" id="dashStatusBanner">
+        <div class="status-pill" id="dashStatusBadge">Ready for work</div>
+        <div class="status-timer" id="dashClock">00:00:00</div>
+        <div class="status-meta" id="dashStatusSub">Not Checked In</div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <h3 id="dashHours">0<span style="font-size: 14px; color:var(--muted);">h</span></h3>
+          <p>Total Hours</p>
+        </div>
+        <div class="kpi-card">
+          <h3 id="dashDaysText">0</h3>
+          <p>Days Present</p>
+        </div>
+      </div>
+      <div class="card" style="padding: 16px 18px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:11px; font-weight:700;">
+          <span style="color:var(--muted)">Leave Balance</span>
+          <b id="dashLeaveText" style="font-size:12px; color:var(--ink); font-family:var(--font-mono);">0/0</b>
+        </div>
+        <div style="height:12px; background:var(--surface-2); border-radius:8px; overflow:hidden; padding: 2px; border: 1px solid var(--line);">
+          <div id="dashLeaveBar" style="height:100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius:6px; width:0%; transition: width 0.8s var(--spring);"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">Top Performers <span class="badge">Month</span></div>
+        <div id="dashRankList"></div>
+      </div>
+    </div>
+
+    <div id="tab-leave" class="tab-view">
+      <div class="card">
+        <div class="section-title">Apply Leave <span class="badge" id="leaveAvailBadge">0 Left</span></div>
+        <div class="grid-2">
+          <div class="field">
+            <label>From Date</label>
+            <input type="date" class="input-control" id="lFrom" onchange="calcLeaveDays()">
+          </div>
+          <div class="field">
+            <label>To Date</label>
+            <input type="date" class="input-control" id="lTo" onchange="calcLeaveDays()">
+          </div>
+        </div>
+        <div class="field">
+          <label>Duration</label>
+          <input type="text" class="input-control input-readonly" id="lDuration" readonly value="0 Days">
+        </div>
+        <div class="field" style="margin-bottom: 22px;">
+          <label>Reason</label>
+          <textarea class="input-control" id="lReason" placeholder="State your reason..."></textarea>
+        </div>
+        <button class="btn btn-green" id="btnSubmitLeave" onclick="submitLeave()"><i class="fa-solid fa-paper-plane"></i> Submit Request</button>
+        <button class="btn btn-danger" id="btnOverrideLeave" onclick="submitLeave(true)" style="display:none;"><i class="fa-solid fa-triangle-exclamation"></i> HR Override</button>
+      </div>
+      <div class="section-title" style="padding: 0 5px 12px; border-bottom: none; margin-bottom: 12px; margin-top: 25px;">Leave History</div>
+      <div id="leaveHistoryList"></div>
+    </div>
+
+    <div id="tab-qr" class="tab-view">
+      <div class="card" style="padding: 14px;">
+        <div class="scanner-wrap">
+          <div id="reader"></div>
+          <div class="scanner-overlay"></div>
+          <div class="scanner-frame"><div class="scan-line"></div></div>
+          <button class="flip-cam-btn" onclick="flipCamera()"><i class="fa-solid fa-camera-rotate"></i></button>
+          
+          <div class="verified-overlay" id="verifiedOverlay">
+            <i class="fa-solid fa-shield-check"></i>
+            <h2>VERIFIED</h2>
+            <p id="verifiedMsg">Check In Successful</p>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center; padding:8px;">
+          <p style="font-size:10.5px; color:var(--muted); font-weight:700;"><i class="fa-solid fa-location-crosshairs" style="color:var(--accent);"></i> Secure GPS Tracking Active</p>
+      </div>
+    </div>
+
+    <div id="tab-calendar" class="tab-view">
+      <div class="card">
+        <div class="cal-head">
+          <h2 class="section-title" style="margin:0; padding:0; border:none; box-shadow:none;">My Logs</h2>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+            <button class="btn btn-green" style="width:auto; min-height:36px; padding:8px 12px; font-size:10px; border-radius:12px;" onclick="exportCurrentMonthExcel()">
+              <i class="fa-solid fa-file-excel"></i> Excel
+            </button>
+            <button class="btn btn-white" style="width:auto; min-height:36px; padding:8px 14px; font-size:10.5px; border-radius:12px;" onclick="openCalPicker()">
+              <i class="fa-regular fa-calendar-days"></i> <span id="calPickerBtnText">Sep 2026</span>
+            </button>
+          </div>
+        </div>
+        <div class="weekdays"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+        <div class="days" id="calGrid"></div>
+        <div class="legend">
+          <span><i style="background:var(--green);"></i> Present</span>
+          <span><i style="background:var(--red);"></i> Leave</span>
+          <span><i style="background:var(--blue-data);"></i> Half</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-profile" class="tab-view">
+      <div class="profile-hero">
+        <div class="profile-upload-wrap">
+          <label for="pImgUpload" style="cursor:pointer;">
+            <img id="pImgPreview" src="https://i.pravatar.cc/80?img=1" alt="Avatar">
+            <div class="cam-badge"><i class="fa-solid fa-camera"></i></div>
+          </label>
+          <input type="file" id="pImgUpload" accept="image/png, image/jpeg, image/webp" style="display:none;" onchange="handleImageUpload(event)">
+        </div>
+        <h2 id="pNameDisp">Name</h2>
+        <div class="profile-badge" id="pIdDisp">EMP-00000</div>
+        
+        <div class="profile-stats">
+            <div class="stat-badge"><i class="fa-solid fa-umbrella-beach"></i> <span id="pLeaveDisp">0/0</span> Leaves</div>
+            <div class="stat-badge"><i class="fa-solid fa-clock"></i> <span id="pHoursDisp">0</span> Hrs</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">Edit Details <i class="fa-solid fa-user-pen" style="color:var(--accent);"></i></div>
+        <div class="field">
+          <label>Email Address <span style="color:var(--red);">(HR)</span></label>
+          <input type="email" class="input-control input-readonly" id="pEmail" readonly>
+        </div>
+        <div class="field">
+          <label>Designation <span style="color:var(--red);">(HR)</span></label>
+          <input type="text" class="input-control input-readonly" id="pRole" readonly>
+        </div>
+        <div class="field">
+          <label>Phone Number</label>
+          <input type="text" class="input-control input-readonly" id="pPhone" readonly>
+        </div>
+        <div class="field" style="margin-bottom: 22px;">
+          <label>New Password</label>
+          <input type="password" class="input-control input-readonly" id="pPassword" placeholder="Hidden for security" readonly>
+        </div>
+        <button class="btn btn-white" id="btnEditProfile" onclick="enableProfileEdit()"><i class="fa-solid fa-unlock-keyhole"></i> Unlock to Edit</button>
+        <button class="btn btn-purple" id="btnSaveProfile" style="display:none;" onclick="saveProfile()"><i class="fa-solid fa-floppy-disk"></i> Save Profile</button>
+      </div>
+    </div>
+
+  </main>
+
+  <nav class="bottom-nav-wrapper">
+    <div class="nav-indicator" id="navIndicator"></div>
+    <button class="nav-item active" onclick="switchTab('dash', 0, 'Overview')">
+      <i class="fa-solid fa-chart-pie"></i><span>Home</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('leave', 1, 'Leave')">
+      <i class="fa-solid fa-umbrella-beach"></i><span>Leave</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('qr', 2, 'Scan QR')">
+      <i class="fa-solid fa-expand"></i><span>Scan</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('calendar', 3, 'My Logs')">
+      <i class="fa-regular fa-calendar-days"></i><span>Logs</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('profile', 4, 'Profile')">
+      <i class="fa-regular fa-user"></i><span>Profile</span>
+    </button>
+  </nav>
+
+</div>
+
+<div class="modal" id="calPickerModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Select Month</div>
+      <button class="close" onclick="closeModal('calPickerModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding: 0 10px;">
+          <button class="btn btn-white" style="width:48px; padding:0; height:48px; min-height:48px;" onclick="changeCalYear(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+          <b style="font-size:26px; font-weight:800; font-family:var(--font-mono); color:var(--accent);" id="calPickerYearDisp">2026</b>
+          <button class="btn btn-white" style="width:48px; padding:0; height:48px; min-height:48px;" onclick="changeCalYear(1)"><i class="fa-solid fa-chevron-right"></i></button>
+       </div>
+       <div class="month-grid" id="monthGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="calDetailModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="modDateTitle">Date Logs</div>
+      <button class="close" onclick="closeModal('calDetailModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="modBodyContent">
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Message</div>
+
+<script type="module" src="scripts/employee.js">
+</script>
+<script>if("serviceWorker" in navigator && location.protocol !== "file:"){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
+</body>
+</html>

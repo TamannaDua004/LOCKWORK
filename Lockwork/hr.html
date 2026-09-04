@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>LOCKWORK HR — Workforce</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@600;800;900&family=Plus+Jakarta+Sans:wght@700;800;900&family=Space+Grotesk:wght@700&family=Fira+Code:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="css/hr.css">
+</head>
+<body>
+<div class="app">
+<div class="shell">
+<header class="topbar">
+<div class="brand"><img src="assets/logo.png" alt="Company Logo" onerror="this.style.display='none'"><span>HR</span></div>
+<nav class="topnav">
+<button class="active" data-page="dashboard" onclick="navigate('dashboard',this)">Overview</button>
+<button data-page="employees" onclick="navigate('employees',this)">Employees</button>
+<button data-page="attendance" onclick="navigate('attendance',this)">Attendance</button>
+<button data-page="leaves" onclick="navigate('leaves',this)">Leave Management</button>
+</nav>
+
+<div class="top-right"><button class="notify" onclick="toggleNotify()"><i class="fa-regular fa-bell"></i><span class="count" id="notifyCount">0</span></button><div class="user"><img src="logo.png" alt="HR"><div><b id="hrUserEmail">HR</b><span>HR Manager</span></div></div><button class="logout" onclick="logOut()"><i class="fa-solid fa-right-from-bracket"></i> Log out</button></div>
+</header>
+
+<main class="content">
+<section id="dashboard" class="page active">
+<div class="head">
+  <div><h1>Good morning, HR!</h1><p><span class="live"></span>Workforce overview, attendance health and leave activity.</p></div>
+  <div class="head-right">
+    <button class="primary" onclick="openEmployee()">+ Create</button>
+  </div>
+</div>
+<div class="metrics">
+<div class="metric blue"><small>Total Employees</small><strong id="mEmployees">0</strong><span>Active workforce</span></div>
+<div class="metric yellow"><small>Present Today</small><strong id="mPresent">0</strong><span>Live status</span></div>
+<div class="metric teal"><small>On Leave</small><strong id="mLeave">0</strong><span>Approved leave</span></div>
+<div class="metric red"><small>Pending Actions</small><strong id="mPending">0</strong><span>Leave approvals</span></div>
+</div>
+<div class="grid2">
+<div class="card">
+  <div class="card-head">
+    <div><div class="title">ATTENDANCE OVERVIEW</div><span class="muted" id="chartFilterMeta">Real-Time Market Curve</span></div>
+    <div class="chart-controls">
+      <button class="filter-btn active" id="btnFilterWeek" onclick="setChartFilter('week')">7 Days</button>
+      <button class="filter-btn" id="btnFilterMonth" onclick="setChartFilter('month')">12 Months</button>
+    </div>
+  </div>
+  <div class="chart-stats-ticker">
+    <div class="ticker-badge"><i class="fa-solid fa-arrow-trend-up"></i> <span id="tickerPct">+4.8%</span></div>
+    <span class="ticker-sub" id="tickerLabel">High Weekly Momentum</span>
+  </div>
+  <div class="chart"><canvas id="overviewChart"></canvas></div>
+</div>
+<div class="card"><div class="card-head"><div class="title">TOP EMPLOYEES</div><span class="muted">Leave health</span></div><div class="people" id="topBoard"></div></div>
+</div>
+<div class="grid3">
+<div class="card"><div class="card-head"><div class="title">LEAVE BALANCE</div><span class="muted">Remaining / assigned</span></div><div class="kpi" id="leaveHealth">0%</div><div class="kpi-sub">Average remaining leave</div><div class="progress"><span id="leaveBar" style="width:0%"></span></div></div>
+<div class="card"><div class="card-head"><div class="title">WORKING HOURS</div><span class="muted">Recorded</span></div><div class="kpi" id="hoursHealth">0h</div><div class="kpi-sub">Calculated from attendance</div><div class="progress"><span id="hoursBar" style="width:0%;background:var(--green);"></span></div></div>
+<div class="card"><div class="card-head"><div class="title">ATTENDANCE LOCATION</div><span class="link" onclick="openQR()">Manage QR</span></div><div class="kpi" id="locName">Head Office</div><div class="kpi-sub" id="locMeta">GPS verification active</div><div class="progress"><span style="width:100%;background:var(--purple);"></span></div></div>
+</div>
+</section>
+
+<section id="employees" class="page">
+<div class="head">
+  <div><h1>Employees</h1><p>Register, manage, and recover employee accounts.</p></div>
+  <div class="head-right">
+    <button class="outline" onclick="openModal('recoveryModal')" style="color:var(--red);border-color:var(--red)"><i class="fa-solid fa-trash-arrow-up"></i> Recovery Bin</button>
+    <button class="primary" onclick="openEmployee()">+ Register Employee</button>
+  </div>
+</div>
+<div class="card"><div class="card-head"><div class="title">EMPLOYEE DIRECTORY</div><span class="muted">HR-controlled credentials</span></div>
+<div class="toolbar">
+  <div class="search" style="width:100%; max-width:400px;"><i class="fa-solid fa-magnifying-glass"></i><input id="employeeSearch" aria-label="Search Employees" placeholder="Search by Name, ID, Email, Role..."></div>
+  <select id="directoryDept" aria-label="Department Filter"><option>All Departments</option><option>Development</option><option>Design</option><option>Marketing</option><option>HR</option><option>Finance</option><option>Operations</option></select>
+  <select id="directoryStatus" aria-label="Status Filter"><option>All Status</option><option>Present</option><option>Late</option><option>On Leave</option><option>Absent</option></select>
+  <button class="outline" onclick="openModal('advancedFilterModal')"><i class="fa-solid fa-sliders"></i> Filter</button>
+</div>
+<div class="table-wrap"><table class="table"><thead><tr><th>Employee</th><th>Employee ID</th><th>Phone</th><th>Department</th><th>Role</th><th>Status</th><th>Leave</th><th>Actions</th></tr></thead><tbody id="employeeBody"></tbody></table></div></div>
+</section>
+
+<section id="attendance" class="page">
+<div class="head">
+  <div><h1>Attendance</h1><p>Full-month employee calendars with QR-verified date details.</p></div>
+  <div class="head-right">
+    <button class="outline" onclick="openQR()"><i class="fa-solid fa-qrcode"></i> Location QR</button>
+    <button id="monthLabelBtn" class="month-selector-btn" onclick="openCustomMonthPicker()"><i class="fa-regular fa-calendar-days"></i> <span id="monthLabelText">September 2026</span></button>
+    <button class="outline" onclick="downloadCurrentMonthExcel()"><i class="fa-solid fa-file-excel"></i> Download Excel</button>
+  </div>
+</div>
+<div class="card att-card">
+<div class="card-head att-top">
+  <div><div class="title">EMPLOYEE ATTENDANCE CALENDAR</div><div class="muted">Every calendar date is shown. Click a circle for check-in, check-out, QR and working-hour detail.</div></div>
+  <div class="att-tools">
+    <div class="search" style="width:100%; max-width:250px;"><i class="fa-solid fa-magnifying-glass"></i><input id="attendanceSearch" aria-label="Search Attendance" placeholder="Search Name, ID, Role..." style="width:100%"></div>
+  </div>
+</div>
+<div class="att-list"><div class="att-grid" id="attendanceGrid"></div></div>
+<div class="att-paging"><button id="prevPage" onclick="changeAttendancePage(-1)">‹ Previous</button><span id="attPage">Page 1 of 1</span><button id="nextPage" onclick="changeAttendancePage(1)">Next ›</button></div>
+</div>
+</section>
+
+<section id="leaves" class="page">
+<div class="head"><div><h1>Leave Management</h1><p>Approve requests and deduct exact requested days from remaining leave.</p></div><button class="outline" onclick="openModal('leaveFilterModal')"><i class="fa-solid fa-sliders"></i> Filters</button></div>
+
+<div style="margin-bottom: 25px;">
+  <div class="title" style="margin-bottom:15px;">TOP LEAVE BALANCES</div>
+  <div class="leave-board-top" id="leaveBoard"></div>
+</div>
+
+<div class="card" style="width: 100%;">
+  <div class="card-head">
+    <div><div class="title">LEAVE REQUESTS</div><span class="muted" id="leaveFilterText">All dates & statuses</span></div>
+  </div>
+  <div class="toolbar"><div class="search" style="width:100%; max-width:400px;"><i class="fa-solid fa-magnifying-glass"></i><input id="leaveSearch" aria-label="Search Leaves" placeholder="Search employee name or purpose..."></div></div>
+  <div class="table-wrap"><table class="table"><thead><tr><th>Employee</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Purpose</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead><tbody id="leaveBody"></tbody></table></div>
+</div>
+</section>
+</main>
+
+<div class="notify-overlay" id="notifyOverlay" onclick="toggleNotify()"></div>
+<div class="notify-panel" id="notifyPanel">
+  <div class="notify-head"><h2>Notifications</h2><button class="close" onclick="toggleNotify()" style="width:36px;height:36px;font-size:14px;"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="notify-body" id="notifyBody"></div>
+</div>
+</div>
+</div>
+
+<div class="modal" id="employeeModal"><div class="modal-box"><div class="modal-head"><div><div class="modal-kicker">EMPLOYEE REGISTRATION</div><div class="modal-title" id="employeeModalTitle">Create Employee Account</div><div class="modal-sub">HR sets profile, attendance access, leave days and password.</div></div><button class="close" onclick="closeModal('employeeModal')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body">
+<form id="employeeForm" class="form"><input id="editId" type="hidden">
+<div class="full avatar-upload">
+  <img id="fImagePreview" src="https://i.pravatar.cc/80?img=1">
+  <div class="upload-wrap">
+    <label style="font-size:var(--font-sm); font-weight:900; display:block; margin-bottom:6px;">Profile Picture (Auto Compressed)</label>
+    <label for="fImage" class="upload-btn"><i class="fa-solid fa-camera"></i> Choose Image</label>
+    <input type="file" id="fImage" accept="image/png, image/jpeg, image/webp" style="display:none;">
+    <input type="hidden" id="fImageBase64">
+  </div>
+</div>
+<div class="field"><label for="fName">Full Name</label><input id="fName" required></div><div class="field"><label for="fEmail">Email</label><input id="fEmail" type="email" required></div><div class="field"><label for="fPhone">Phone Number</label><input id="fPhone" required></div><div class="field"><label for="fAddress">Address</label><input id="fAddress" required></div><div class="field"><label for="fDob">Date of Birth</label><input id="fDob" type="date" required></div><div class="field"><label for="fAttendance">Attendance Access</label><select id="fAttendance"><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></div><div class="field"><label for="fDepartment">Department</label><select id="fDepartment"><option>Development</option><option>Design</option><option>Marketing</option><option>Finance</option><option>Operations</option></select></div><div class="field"><label for="fRole">Role</label><input id="fRole" required></div><div class="field"><label for="fAssigned">Assigned Leave Days</label><input id="fAssigned" type="number" min="0" required></div><div class="field"><label for="fRemaining">Remaining Leave Days</label><input id="fRemaining" type="number" min="0" required></div><div class="field"><label for="fSalary">Monthly Salary</label><input id="fSalary" type="number" min="0" required></div><div class="field"><label for="fStatus">Current Status</label><select id="fStatus"><option>Present</option><option>Late</option><option>On Leave</option><option>Absent</option></select></div><div class="field"><label for="fPassword">Password</label><div class="password"><input id="fPassword" type="password" required><button class="eye" type="button" onclick="togglePass('fPassword','eye1')"><i id="eye1" class="fa-regular fa-eye"></i></button></div></div><div class="field"><label for="fConfirm">Confirm Password</label><div class="password"><input id="fConfirm" type="password" required><button class="eye" type="button" onclick="togglePass('fConfirm','eye2')"><i id="eye2" class="fa-regular fa-eye"></i></button></div></div><div class="full"><div class="info"><b>Employee ID</b><span id="generatedId"></span></div></div><div class="full"><button class="primary" style="width:100%">Save Employee Account</button></div></form></div></div></div>
+
+<div class="modal" id="resetLeaveModal"><div class="modal-box" style="width:min(450px,95vw)"><div class="modal-head"><div><div class="modal-kicker">LEAVE BALANCE</div><div class="modal-title">Assign Leave Days</div><div class="modal-sub" id="rlSub"></div></div><button class="close" onclick="closeModal('resetLeaveModal')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div class="form"><input type="hidden" id="rlId"><div class="field full"><label for="rlDays">New Assigned Leave Limit</label><input id="rlDays" type="number" min="0"></div><div class="full"><button class="primary" style="width:100%" onclick="saveLeaveReset()">Update Balance</button></div></div></div></div></div>
+
+<div class="modal" id="deleteModal"><div class="modal-box" style="width:min(500px,95vw)"><div class="modal-head"><div><div class="modal-kicker" style="color:var(--red)">DANGER ZONE</div><div class="modal-title">Delete Employee</div></div><button class="close" onclick="closeModal('deleteModal')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div class="info" style="background:var(--red); color:#000; border-color:#000;"><b style="color:#000;">Warning</b><span style="color:#000;font-weight:900;">This will move <span id="delEmpName"></span> to the Recovery Bin for 30 days.</span></div><div class="form" style="margin-top:20px;"><input type="hidden" id="delEmpDbId"><div class="field full"><label for="delConfirmInput">Type <span id="delEmpIdTarget" style="color:var(--red);user-select:none;"></span> to confirm</label><input id="delConfirmInput" onpaste="return false;" autocomplete="off" placeholder="Type exactly as shown..."></div><div class="full"><button class="primary btn-red" style="width:100%" onclick="confirmDelete()">Delete Employee</button></div></div></div></div></div>
+
+<div class="modal" id="recoveryModal"><div class="modal-box"><div class="modal-head"><div><div class="modal-kicker" style="color:var(--red)">30-DAY RETENTION</div><div class="modal-title">Recovery Bin</div><div class="modal-sub">Deleted accounts stay here for 30 days before permanent deletion.</div></div><button class="close" onclick="closeModal('recoveryModal')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div class="table-wrap"><table class="table"><thead><tr><th>Employee</th><th>Employee ID</th><th>Deleted On</th><th>Action</th></tr></thead><tbody id="recoveryBody"></tbody></table></div></div></div></div>
+
+<div class="modal" id="weekendModal"><div class="modal-box" style="width:min(400px,95vw)"><div class="modal-head"><div><div class="modal-kicker">REST DAY</div><div class="modal-title">Weekend</div></div><button class="close" onclick="closeModal('weekendModal')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div class="info" style="text-align:center; padding:30px;"><div style="font-size:40px;margin-bottom:10px;">😊</div><b style="color:#000;">These are the leave days</b><span style="color:#000;">No attendance required.</span></div><button class="primary" style="width:100%;margin-top:15px" onclick="closeModal('weekendModal')">Close</button></div></div></div>
+
+<div class="modal" id="customMonthModal"><div class="modal-box" style="width:min(450px,95vw)"><div class="modal-head"><div><div class="modal-kicker">CALENDAR</div><div class="modal-title">Select Month & Year</div></div><button class="close" onclick="closeModal('customMonthModal')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; font-size:24px; font-weight:900;"><button class="tiny" style="width:40px;height:40px;" onclick="changePickerYear(-1)"><i class="fa-solid fa-chevron-left"></i></button><span id="pickerYearText">2026</span><button class="tiny" style="width:40px;height:40px;" onclick="changePickerYear(1)"><i class="fa-solid fa-chevron-right"></i></button></div><div class="month-grid"><button class="filter-btn" onclick="selectPickerMonth(1)">Jan</button><button class="filter-btn" onclick="selectPickerMonth(2)">Feb</button><button class="filter-btn" onclick="selectPickerMonth(3)">Mar</button><button class="filter-btn" onclick="selectPickerMonth(4)">Apr</button><button class="filter-btn" onclick="selectPickerMonth(5)">May</button><button class="filter-btn" onclick="selectPickerMonth(6)">Jun</button><button class="filter-btn" onclick="selectPickerMonth(7)">Jul</button><button class="filter-btn" onclick="selectPickerMonth(8)">Aug</button><button class="filter-btn" onclick="selectPickerMonth(9)">Sep</button><button class="filter-btn" onclick="selectPickerMonth(10)">Oct</button><button class="filter-btn" onclick="selectPickerMonth(11)">Nov</button><button class="filter-btn" onclick="selectPickerMonth(12)">Dec</button></div></div></div></div>
+
+<div class="modal" id="qrModal"><div class="modal-box"><div class="modal-head"><div><div class="modal-kicker">ATTENDANCE LOCATION</div><div class="modal-title">Create / Update Attendance QR</div><div class="modal-sub">The future employee dashboard reads this location contract for GPS verification.</div></div><button class="close" onclick="closeModal('qrModal')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div class="qr-grid"><div class="qr-box"><div id="qrCode"></div></div><div><div class="form"><div class="field"><label for="qName">Location Name</label><input id="qName"></div><div class="field"><label for="qRadius">Allowed Radius (meters)</label><input id="qRadius" type="number" min="10"></div><div class="field"><label for="qLat">Latitude</label><input id="qLat" type="number" step="any"></div><div class="field"><label for="qLng">Longitude</label><input id="qLng" type="number" step="any"></div><div class="field full"><label for="qMap">Google Maps Destination</label><input id="qMap"></div></div><div class="coord" id="qCoord"></div><div class="qr-actions"><button class="outline" onclick="useCurrentLocation()">Use Current Location</button><button class="primary" onclick="generateQR()">Regenerate QR</button><button class="primary btn-green" onclick="downloadQR()">Download QR</button></div></div></div><button class="primary" style="width:100%;margin-top:13px" onclick="saveQR()">Save Location</button></div></div></div>
+
+<div class="modal" id="attendanceDetailModal"><div class="modal-box attendance-detail-modal"><div class="modal-head"><div><div class="modal-kicker" id="detailKicker">ATTENDANCE DETAIL</div><div class="modal-title" id="detailTitle">Employee Attendance</div><div class="modal-sub" id="detailSubtitle"></div></div><button class="close" onclick="closeModal('attendanceDetailModal')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div id="detailMessage" class="attendance-state-message" style="display:none"></div><div class="detail-profile"><div class="detail-person"><img id="detailImg"><div><b id="detailName"></b><span id="detailRole"></span><span id="detailEmployeeId"></span></div></div><span class="verified" id="detailVerified">—</span></div><div class="detail-kpis"><div class="detail-kpi"><b id="detailDate">—</b><span>Date</span></div><div class="detail-kpi"><b id="detailIn">—</b><span>Check In</span></div><div class="detail-kpi"><b id="detailOut">—</b><span>Check Out</span></div><div class="detail-kpi"><b id="detailHours">—</b><span>Duration</span></div><div class="detail-kpi"><b id="detailDistance">—</b><span>GPS Distance</span></div><div class="detail-kpi"><b id="detailStatus">—</b><span>Status</span></div></div><table class="detail-table"><thead><tr><th>Attendance / GPS Field</th><th>Recorded Value</th></tr></thead><tbody id="detailRows"></tbody></table><a id="detailMap" class="map-link" target="_blank" style="display:inline-block;margin-top:15px">Open destination in Google Maps</a></div></div></div>
+<div class="modal" id="leaveFilterModal"><div class="modal-box"><div class="modal-head"><div><div class="modal-kicker">LEAVE FILTERS</div><div class="modal-title">Filter Leave Requests</div></div><button class="close" onclick="closeModal('leaveFilterModal')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div class="form"><div class="field full"><label for="lfStatus">Status</label><select id="lfStatus"><option value="All">All Statuses</option><option value="Pending">Pending</option><option value="Approved">Approved</option><option value="Rejected">Rejected</option></select></div><div class="field"><label for="lfFrom">From Date</label><input id="lfFrom" type="date"></div><div class="field"><label for="lfTo">To Date</label><input id="lfTo" type="date"></div><div class="full"><button class="primary" style="width:100%" onclick="applyLeaveFilter()">Apply Filters</button></div></div></div></div></div>
+
+<div class="modal" id="advancedFilterModal"><div class="modal-box"><div class="modal-head"><div><div class="modal-kicker">DIRECTORY FILTER</div><div class="modal-title">Advanced Employee Filter</div></div><button class="close" onclick="closeModal('advancedFilterModal')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div class="form"><div class="field"><label for="advRole">Role Contains</label><input id="advRole"></div><div class="field"><label for="advLeave">Minimum Remaining Leave</label><input id="advLeave" type="number" min="0"></div><div class="full"><button class="primary" style="width:100%" onclick="applyAdvancedFilter()">Apply Filter</button></div></div></div></div></div>
+
+<script src="scripts/hr.js"></script>
+<div class="toast" id="toast"></div>
+</body>
+</html>
