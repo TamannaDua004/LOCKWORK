@@ -61,6 +61,17 @@ No frameworks. No build steps. No `npm install` bloat. Pure DOM manipulation and
 
 ---
 
+## 🔐 DEMO ACCOUNT
+
+Use the following account for demo/testing purposes:
+
+| Field | Demo Credentials |
+|---|---|
+| **Email** | `lockwork.company.hr@gmail.com` |
+| **Password** | `Hrdemo@4321` |
+
+---
+
 ## 📐 DATABASE TOPOLOGY
 
 Flat NoSQL document architecture designed for zero-latency snapshot listeners in Firebase Firestore.
