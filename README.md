@@ -1,8 +1,22 @@
 <div align="center">
-  
-# 🏢 LOCKWORK Workforce System
-  
-### <a href="https://ggggg.vercel.app">🚀 LIVE PROJECT DEMO: ggggg.vercel.app 🚀</a>
+
+# ⬛ LOCKWORK ⬛
+**WORKFORCE SYSTEM**
+
+<br>
+
+<a href="https://lockwork-pi.vercel.app/">
+  <img src="https://img.shields.io/badge/▶_CLICK_ME_FOR_LIVE_PROJECT_◀-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="CLICK ME BUTTON" height="40"/>
+</a>
+
+<br><br>
+
+<!-- LIVE BRUTALIST ANIMATION -->
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=900&size=20&pause=1500&color=000000&background=55EFC4&center=true&vCenter=true&width=500&lines=HR+COMMAND+CENTER;EMPLOYEE+APP+(PWA);GEO-FENCED+QR+ATTENDANCE;REAL-TIME+CLOUD+SYNC" alt="Live Animation" border="3" />
+
+<br><br>
+
+*Zero fluff. Maximum utility. A brutally minimalist ecosystem for attendance, people, and leave operations.*
 
 <p align="center">
   <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5"/>
@@ -12,45 +26,44 @@
   <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel"/>
 </p>
 
-*A real-time, Neo-Brutalist HR and Employee Management System featuring Dual-Portal Access, Geofenced QR Tracking, and Live Firebase Synchronization.*
-
 </div>
 
 ---
 
-> [!NOTE]  
-> **About The UI/UX**  
-> Lockwork utilizes a distinct **Neo-Brutalist design language**. Expect heavy black outlines, sharp shadow offsets, flat vibrant candy colors, and smooth micro-interactions (spring-physics active states, expanding modals, and scan-line animations) built entirely in vanilla CSS3.
+## 🗂️ THE STACK
+
+No frameworks. No build steps. No `npm install` bloat. Pure DOM manipulation and real-time NoSQL synchronization styled with harsh lines, high contrast, and raw geometry using native ES Modules via CDN.
 
 ---
 
-## ✨ System Features
+## ⚙️ CORE MODULES
 
-Lockwork operates as a dual-sided ecosystem. The application automatically routes users to their respective portals based on their login credentials.
-
-### 👨‍💼 HR Portal (Desktop Optimized)
 > [!IMPORTANT]  
-> The command center for administrators and HR managers.
-* **🔴 Live Dashboard Metrics:** Real-time counters for active workforce, present employees, employees on leave, and pending leave requests.
-* **🟢 Employee Lifecycle Management:** Full CRUD capabilities. Automatically generates formatted Employee IDs (e.g., `<kbd>EMP-26-01-2026-00001</kbd>`).
-* **🟡 30-Day Recovery Bin:** Accidental deletions aren't permanent. Restores employees alongside their historical attendance and leave data.
-* **🔵 Dynamic Geofencing QR:** Generates secure attendance QR codes embedded with precise Office GPS coordinates (Latitude/Longitude) and allowed radius margins.
-* **🟣 Attendance Grid & Analytics:** Full calendar visualization. Tracks Present, Half-Day, Late, and Absent statuses. Analyzes GPS distance deltas. 
-* **🟢 One-Click Excel Export:** Generates robust `.xlsx` timesheets for payroll via SheetJS.
+> **🟪 HR COMMAND CENTER (DESKTOP)**  
+> *The central nervous system for administrators.*  
+> * **Live Telemetry:** Real-time counters for active staff, leaves, and pending approvals.  
+> * **ID Generation:** Auto-sequenced employee IDs (e.g., `<kbd>EMP-26-01-2026-00001</kbd>`).  
+> * **Recovery Bin:** 30-day retention for deleted staff records.  
+> * **Data Export:** Single-click `.xlsx` payroll and calendar generation via SheetJS.
 
-### 👩‍💻 Employee Portal (PWA / Mobile-First)
 > [!TIP]  
-> A mobile-optimized web app for daily staff operations. Includes a seamless Dark/Light mode toggle.
-* **📱 Secure QR Scanner (`html5-qrcode`):** Employees scan the HR's daily QR code. The app cross-references the employee's live browser GPS location with the QR's embedded coordinates to prevent remote check-ins.
-* **🗓️ Automated Log Calendar:** Visual calendar dynamically rendering Rest Days (Weekends), Approved Leaves, Half-Days, and Future/Pre-joining dates.
-* **🏖️ Self-Service Leave:** Apply for leaves with automated day calculations. Real-time status updates (Pending, Approved, Rejected).
-* **👤 Live Profile Management:** Upload and auto-compress avatar images, update contact details, and change passwords.
+> **🟩 EMPLOYEE TERMINAL (MOBILE PWA)**  
+> *A mobile-optimized web app for daily staff operations.*  
+> * **Dark/Light Mode:** Seamless toggle for user preference.  
+> * **Automated Logs:** Visual calendar dynamically rendering Rest Days, Half-Days, and Leaves.  
+> * **Self-Service:** Request leave, check balances, and update passwords/avatars instantly.  
+
+> [!CAUTION]  
+> **🟥 GPS-FENCED QR ATTENDANCE**  
+> *Cryptographically secure physical verification.*  
+> * HR sets the office target coordinates (Lat/Lng) and allowed radius (e.g., 50 meters).
+> * The Employee App utilizes the native Geolocation API to verify physical distance *before* authorizing the `html5-qrcode` camera scan. Remote or spoofed check-ins are blocked at the client level.
 
 ---
 
-## 🗄️ Database Architecture (ER Diagram)
+## 📐 DATABASE TOPOLOGY
 
-Lockwork uses Firebase Firestore (NoSQL). The data is flattened for maximum read efficiency and real-time snapshot listener performance.
+Flat NoSQL document architecture designed for zero-latency snapshot listeners in Firebase Firestore.
 
 ```mermaid
 erDiagram
